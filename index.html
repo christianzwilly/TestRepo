@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OCBC Inspired Robo-Advisory</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body class="app app--mobile" data-layout="mobile">
+    <header class="top-bar">
+      <div class="brand">
+        <div class="brand__mark">OC</div>
+        <div class="brand__name">OCBC Robo Advisory</div>
+      </div>
+      <div class="layout-toggle" role="group" aria-label="Toggle layout">
+        <button class="layout-toggle__btn layout-toggle__btn--active" data-layout-target="mobile">
+          Mobile
+        </button>
+        <button class="layout-toggle__btn" data-layout-target="web">Website</button>
+      </div>
+    </header>
+    <main class="main">
+      <section class="card card--investment" data-step="0">
+        <h1 class="card__title">Investment Portfolio</h1>
+        <p class="card__subtitle">
+          Build, monitor, and optimize your investments the OCBC way.
+        </p>
+        <button class="btn btn--primary" id="startOnboarding">Add Portfolio</button>
+      </section>
+
+      <section class="card" data-step="1">
+        <div class="card__header">
+          <h2>Risk Profile Questionnaire</h2>
+          <p class="card__subtitle">Help us understand your investment preferences.</p>
+        </div>
+        <form class="form" id="riskForm">
+          <ol class="question-list" id="questionList"></ol>
+          <div class="form__actions">
+            <button type="button" class="btn" data-action="back">Back</button>
+            <button type="submit" class="btn btn--primary" disabled>Continue</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card" data-step="2">
+        <div class="card__header">
+          <h2>Goal Setup</h2>
+          <p class="card__subtitle">
+            Define your destination. We'll chart the path.
+          </p>
+        </div>
+        <form class="form" id="goalForm">
+          <div class="grid">
+            <label class="field">
+              <span>Goal (Optional)</span>
+              <input type="text" name="goalName" placeholder="E.g. Retirement" />
+            </label>
+            <label class="field">
+              <span>Target Investment (Optional)</span>
+              <input type="number" name="targetAmount" placeholder="Enter amount" min="0" />
+            </label>
+            <label class="field">
+              <span>Tenor (Optional, years)</span>
+              <input type="number" name="tenor" placeholder="e.g. 10" min="1" />
+            </label>
+            <label class="field required">
+              <span>Initial Investment</span>
+              <input type="number" name="initialInvestment" placeholder="Enter amount" min="0" required />
+            </label>
+            <label class="field required">
+              <span>Recurring Contribution</span>
+              <input type="number" name="recurringContribution" placeholder="Enter amount" min="0" required />
+            </label>
+            <label class="field required">
+              <span>Recurring Contribution Frequency</span>
+              <select name="frequency" required>
+                <option value="">Select frequency</option>
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
+                <option value="semiannual">Semi Annually</option>
+              </select>
+            </label>
+          </div>
+          <div class="form__actions">
+            <button type="button" class="btn" data-action="back">Back</button>
+            <button type="submit" class="btn btn--primary" disabled>Continue</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card" data-step="3">
+        <div class="card__header">
+          <h2>Model Portfolio Selection</h2>
+          <p class="card__subtitle">
+            Choose a curated OCBC portfolio aligned with your risk appetite.
+          </p>
+        </div>
+        <div class="portfolio-options" id="portfolioOptions"></div>
+        <div class="projection" id="projection" hidden>
+          <div class="projection__header">
+            <h3>Projected Performance</h3>
+            <p id="projectionSummary"></p>
+          </div>
+          <canvas id="projectionChart" height="200"></canvas>
+          <div class="projection__actions" id="optimizationArea" hidden>
+            <p class="projection__alert">
+              Your target looks out of reach. Try our smart optimization suggestion.
+            </p>
+            <button class="btn btn--secondary" id="optimizeBtn">Optimize Goal</button>
+            <div class="suggestion" id="suggestion" hidden></div>
+          </div>
+          <div class="instruments" id="instrumentList"></div>
+        </div>
+        <div class="form__actions">
+          <button type="button" class="btn" data-action="back">Back</button>
+          <button type="button" class="btn btn--primary" id="goToConfirmation" disabled>
+            Continue
+          </button>
+        </div>
+      </section>
+
+      <section class="card" data-step="4">
+        <div class="card__header">
+          <h2>Review &amp; Confirm</h2>
+          <p class="card__subtitle">Check the details before you subscribe.</p>
+        </div>
+        <div class="summary" id="confirmationSummary"></div>
+        <div class="consent">
+          <label class="checkbox">
+            <input type="checkbox" id="consentFees" />
+            <span>I acknowledge the model portfolio fees.</span>
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" id="consentAgreement" />
+            <span>I agree to the terms of the robo-advisory service.</span>
+          </label>
+        </div>
+        <div class="form__actions">
+          <button type="button" class="btn" data-action="back">Back</button>
+          <button type="button" class="btn btn--primary" id="proceedPassword" disabled>
+            Continue
+          </button>
+        </div>
+      </section>
+
+      <section class="card" data-step="5">
+        <div class="card__header">
+          <h2>Authenticate Subscription</h2>
+          <p class="card__subtitle">Secure your investment with your OCBC password.</p>
+        </div>
+        <form class="form" id="passwordForm">
+          <label class="field required">
+            <span>Password</span>
+            <input type="password" name="password" placeholder="Enter password" required />
+          </label>
+          <div class="form__actions">
+            <button type="button" class="btn" data-action="back">Back</button>
+            <button type="submit" class="btn btn--primary">Confirm Subscription</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card card--success" data-step="6">
+        <div class="card__header">
+          <h2>Your subscription is successful!</h2>
+          <p class="card__subtitle">Welcome to a smarter way to invest with OCBC.</p>
+        </div>
+        <div class="summary" id="successSummary"></div>
+        <button class="btn btn--primary" id="finishFlow">Done</button>
+      </section>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
