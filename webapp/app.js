@@ -1,17 +1,22 @@
-const state = {
-  platform: "mobile",
-  currentStep: 0,
-  riskAnswers: [],
-  goal: {
+function createEmptyGoal() {
+  return {
     goal: "",
     target: "",
     tenor: "",
     initial: "",
     recurring: "",
     frequency: ""
-  },
+  };
+}
+
+const state = {
+  platform: "mobile",
+  currentStep: 0,
+  riskAnswers: [],
+  goal: createEmptyGoal(),
   selectedPortfolio: null,
   autosave: false,
+  resumeStep: null,
   chart: null,
   optimized: false,
   password: ""
@@ -209,6 +214,7 @@ function renderStep() {
   updateProgress();
   wizardEl.innerHTML = "";
   const stepRenderers = [
+    renderDashboardStep,
     renderRiskStep,
     renderGoalStep,
     renderPortfolioStep,
@@ -222,11 +228,40 @@ function renderStep() {
   }
 }
 
+function renderDashboardStep() {
+  const template = document.getElementById("portfolio-dashboard-template");
+  const view = template.content.cloneNode(true);
+  const card = view.querySelector(".dashboard-card");
+  if (state.autosave) {
+    const banner = document.createElement("div");
+    banner.className = "resume-banner";
+    banner.innerHTML = `
+      <div>
+        <strong>You've saved progress</strong>
+        <p>Resume your investment onboarding from where you left off.</p>
+      </div>
+      <button type="button" class="primary" data-resume>Resume onboarding</button>
+    `;
+    banner.querySelector("[data-resume]").addEventListener("click", () => {
+      state.autosave = false;
+      state.currentStep = state.resumeStep ?? 1;
+      state.resumeStep = null;
+      renderStep();
+    });
+    card.prepend(banner);
+  }
+  view.querySelector("[data-add-portfolio]").addEventListener("click", () => {
+    state.currentStep = 1;
+    renderStep();
+  });
+  wizardEl.appendChild(view);
+}
+
 function renderRiskStep() {
   const index = state.riskAnswers.length;
   const question = questions[index];
   if (!question) {
-    state.currentStep = 1;
+    state.currentStep = 2;
     renderStep();
     return;
   }
@@ -257,7 +292,7 @@ function renderRiskStep() {
     if (!selected) return;
     state.riskAnswers.push(selected.value);
     if (state.riskAnswers.length === questions.length) {
-      state.currentStep = 1;
+      state.currentStep = 2;
     }
     renderStep();
   });
@@ -265,11 +300,17 @@ function renderRiskStep() {
     if (state.riskAnswers.length > 0) {
       state.riskAnswers.pop();
       renderStep();
+    } else {
+      state.currentStep = 0;
+      renderStep();
     }
   });
   view.querySelector("[data-save-exit]").addEventListener("click", () => {
     state.autosave = true;
+    state.resumeStep = 1;
     alert("Progress saved. You can resume anytime.");
+    state.currentStep = 0;
+    renderStep();
   });
   wizardEl.appendChild(view);
 }
@@ -300,16 +341,19 @@ function renderGoalStep() {
     validateGoal(view);
   });
   view.querySelector("[data-back]").addEventListener("click", () => {
-    state.currentStep = 0;
+    state.currentStep = 1;
     renderStep();
   });
   view.querySelector("[data-save-draft]").addEventListener("click", () => {
     state.autosave = true;
+    state.resumeStep = 2;
     alert("Draft saved with your goal inputs.");
+    state.currentStep = 0;
+    renderStep();
   });
   continueBtn.addEventListener("click", () => {
     if (!continueBtn.disabled) {
-      state.currentStep = 2;
+      state.currentStep = 3;
       renderStep();
     }
   });
@@ -384,15 +428,15 @@ function renderPortfolioStep() {
   const continueBtn = view.querySelector("[data-continue]");
   continueBtn.disabled = !state.selectedPortfolio;
   continueBtn.addEventListener("click", () => {
-    state.currentStep = 3;
+    state.currentStep = 4;
     renderStep();
   });
   view.querySelector("[data-back]").addEventListener("click", () => {
-    state.currentStep = 1;
+    state.currentStep = 2;
     renderStep();
   });
   view.querySelector("[data-change-inputs]").addEventListener("click", () => {
-    state.currentStep = 1;
+    state.currentStep = 2;
     renderStep();
   });
   view.querySelector("[data-historical]").addEventListener("click", (event) => {
@@ -577,11 +621,17 @@ function renderConfirmationStep() {
   const summary = view.querySelector("[data-summary]");
   const portfolio = state.selectedPortfolio;
   const projection = calculateProjection();
+  const frequencyLabel = state.goal.frequency ? state.goal.frequency.replace("-", " ") : "";
   summary.innerHTML = `
     ${summaryItem("Model portfolio", portfolio.name)}
     ${summaryItem("Risk category", portfolio.risk)}
     ${summaryItem("Initial investment", `SGD ${Number(state.goal.initial).toLocaleString()}`)}
-    ${summaryItem("Recurring contribution", `SGD ${Number(state.goal.recurring).toLocaleString()} (${state.goal.frequency.replace("-", " ")})`)}
+    ${summaryItem(
+      "Recurring contribution",
+      `SGD ${Number(state.goal.recurring).toLocaleString()}${
+        frequencyLabel ? ` (${frequencyLabel})` : ""
+      }`
+    )}
     ${state.goal.goal ? summaryItem("Goal", state.goal.goal) : ""}
     ${state.goal.target ? summaryItem("Target", `SGD ${Number(state.goal.target).toLocaleString()}`) : ""}
     ${state.goal.tenor ? summaryItem("Tenor", `${state.goal.tenor} years`) : ""}
@@ -594,12 +644,12 @@ function renderConfirmationStep() {
     continueBtn.disabled = !allChecked;
   });
   view.querySelector("[data-back]").addEventListener("click", () => {
-    state.currentStep = 2;
+    state.currentStep = 3;
     renderStep();
   });
   continueBtn.addEventListener("click", () => {
     if (!continueBtn.disabled) {
-      state.currentStep = 4;
+      state.currentStep = 5;
       renderStep();
     }
   });
@@ -622,9 +672,10 @@ function renderPasswordStep() {
   const toggle = view.querySelector("[data-toggle-password]");
   const continueBtn = view.querySelector("[data-continue]");
   passwordInput.value = state.password;
+  continueBtn.disabled = passwordInput.value.trim().length === 0;
   passwordInput.addEventListener("input", () => {
     state.password = passwordInput.value;
-    continueBtn.disabled = passwordInput.value.length < 8;
+    continueBtn.disabled = passwordInput.value.trim().length === 0;
   });
   toggle.addEventListener("click", () => {
     const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
@@ -632,12 +683,12 @@ function renderPasswordStep() {
     toggle.textContent = type === "password" ? "Show" : "Hide";
   });
   view.querySelector("[data-back]").addEventListener("click", () => {
-    state.currentStep = 3;
+    state.currentStep = 4;
     renderStep();
   });
   continueBtn.addEventListener("click", () => {
     if (!continueBtn.disabled) {
-      state.currentStep = 5;
+      state.currentStep = 6;
       renderStep();
     }
   });
@@ -649,16 +700,25 @@ function renderSuccessStep() {
   const view = template.content.cloneNode(true);
   const summary = view.querySelector("[data-summary]");
   const projection = calculateProjection();
+  const frequencyLabel = state.goal.frequency ? state.goal.frequency.replace("-", " ") : "";
   summary.innerHTML = `
     ${summaryItem("Model portfolio", state.selectedPortfolio.name)}
+    ${summaryItem("Risk category", state.selectedPortfolio.risk)}
     ${summaryItem("Initial investment", `SGD ${Number(state.goal.initial).toLocaleString()}`)}
-    ${summaryItem("Recurring contribution", `SGD ${Number(state.goal.recurring).toLocaleString()} (${state.goal.frequency.replace("-", " ")})`)}
+    ${summaryItem(
+      "Recurring contribution",
+      `SGD ${Number(state.goal.recurring).toLocaleString()}${
+        frequencyLabel ? ` (${frequencyLabel})` : ""
+      }`
+    )}
     ${state.goal.goal ? summaryItem("Goal", state.goal.goal) : ""}
     ${state.goal.target ? summaryItem("Target", `SGD ${Number(state.goal.target).toLocaleString()}`) : ""}
+    ${state.goal.tenor ? summaryItem("Tenor", `${state.goal.tenor} years`) : ""}
     ${summaryItem("Projected value", `SGD ${projection.projectedValue.toLocaleString()}`)}
   `;
   view.querySelector("[data-finish]").addEventListener("click", () => {
-    alert("Returning to dashboard. Thanks for investing with OCBC!");
+    resetFlow();
+    renderStep();
   });
   view.querySelector("[data-download]").addEventListener("click", () => {
     alert("Receipt downloaded.");
@@ -743,6 +803,21 @@ function applyOptimizations() {
   state.goal.recurring = Math.ceil((Number(state.goal.recurring || 0) * 1.2) / 10) * 10;
   state.goal.tenor = (Number(state.goal.tenor || 5) + 1).toString();
   state.optimized = true;
+}
+
+function resetFlow() {
+  state.currentStep = 0;
+  state.riskAnswers = [];
+  state.goal = createEmptyGoal();
+  state.selectedPortfolio = null;
+  state.optimized = false;
+  state.autosave = false;
+  state.resumeStep = null;
+  state.password = "";
+  if (state.chart) {
+    state.chart.destroy();
+    state.chart = null;
+  }
 }
 
 function openModal(content) {

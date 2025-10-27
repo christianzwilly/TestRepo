@@ -110,6 +110,108 @@ body[data-platform="web"] .app-shell {
   position: relative;
 }
 
+.dashboard-card {
+  gap: 32px;
+}
+
+.portfolio-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+  padding: 16px;
+  border: 1px solid var(--cloud-grey);
+  border-radius: var(--radius-web);
+}
+
+.portfolio-summary h2 {
+  margin: 0 0 4px;
+  font-size: 1.15rem;
+}
+
+.portfolio-summary .amount {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.portfolio-summary .change {
+  margin: 4px 0 0;
+  font-weight: 600;
+}
+
+.portfolio-summary .change.positive {
+  color: var(--accent-green);
+}
+
+.portfolio-actions {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+
+.portfolio-list header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.portfolio-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.portfolio-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid var(--cloud-grey);
+  border-radius: var(--radius-web);
+  background: #fafafa;
+}
+
+.portfolio-list h3 {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+}
+
+.portfolio-list p {
+  margin: 0;
+  color: var(--slate-grey);
+}
+
+.resume-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: var(--radius-web);
+  background: rgba(214, 0, 28, 0.08);
+  border: 1px solid rgba(214, 0, 28, 0.2);
+  margin-bottom: 16px;
+}
+
+.resume-banner strong {
+  display: block;
+  font-size: 1.05rem;
+}
+
+.resume-banner p {
+  margin: 4px 0 0;
+  color: var(--slate-grey);
+}
+
+.footnote {
+  font-size: 0.95rem;
+  color: var(--slate-grey);
+}
+
 .card {
   background: #fff;
   border-radius: var(--radius-web);
@@ -477,6 +579,22 @@ body[data-platform="web"] .app-shell {
 
   .progress-rail {
     order: 3;
+  }
+
+  .portfolio-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .portfolio-list li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .resume-banner {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .card {

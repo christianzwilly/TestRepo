@@ -17,12 +17,13 @@
       </header>
       <div class="progress-rail" aria-hidden="true">
         <ol>
-          <li class="active">1. Risk Profile</li>
-          <li>2. Goal Setup</li>
-          <li>3. Portfolio</li>
-          <li>4. Confirm</li>
-          <li>5. Authorize</li>
-          <li>6. Success</li>
+          <li class="active">1. Investment Portfolio</li>
+          <li>2. Risk Profile</li>
+          <li>3. Goal Setup</li>
+          <li>4. Portfolio</li>
+          <li>5. Confirm</li>
+          <li>6. Authorize</li>
+          <li>7. Success</li>
         </ol>
       </div>
       <section class="wizard" aria-live="polite"></section>
@@ -30,6 +31,57 @@
     <div class="modal-backdrop hidden" role="dialog" aria-modal="true">
       <div class="modal"></div>
     </div>
+    <template id="portfolio-dashboard-template">
+      <div class="card dashboard-card">
+        <header class="card-header">
+          <h1>Investment Portfolio</h1>
+          <p class="subtext">
+            View your current holdings and start a new investment anytime.
+          </p>
+        </header>
+        <section class="portfolio-section">
+          <div class="portfolio-summary">
+            <h2>Total portfolio value</h2>
+            <p class="amount">SGD 58,400.00</p>
+            <p class="change positive">▲ 4.2% past 12 months</p>
+          </div>
+          <div class="portfolio-actions">
+            <button type="button" class="primary" data-add-portfolio>
+              Add Portfolio
+            </button>
+            <button type="button" class="secondary">View statements</button>
+          </div>
+        </section>
+        <section class="portfolio-list">
+          <header>
+            <h2>Existing portfolios</h2>
+            <p class="subtext">Tap into a portfolio to review or adjust.</p>
+          </header>
+          <ul>
+            <li>
+              <div>
+                <h3>Balanced Growth</h3>
+                <p>Monthly contribution SGD 600 • Projected value SGD 120k</p>
+              </div>
+              <button type="button" class="tertiary">Manage</button>
+            </li>
+            <li>
+              <div>
+                <h3>Retirement Income</h3>
+                <p>Quarterly contribution SGD 1,200 • Projected value SGD 200k</p>
+              </div>
+              <button type="button" class="tertiary">Manage</button>
+            </li>
+          </ul>
+        </section>
+        <footer class="card-footer">
+          <div class="footnote">
+            Need help choosing? Start with our guided onboarding to find a model
+            portfolio matched to your risk appetite.
+          </div>
+        </footer>
+      </div>
+    </template>
     <template id="risk-question-template">
       <div class="card stack-lg">
         <header class="card-header">
@@ -165,7 +217,7 @@
         <div class="field password-field">
           <label for="auth-password">Password</label>
           <div class="input-affix">
-            <input id="auth-password" type="password" autocomplete="current-password" minlength="8" required />
+            <input id="auth-password" type="password" autocomplete="current-password" />
             <button type="button" class="tertiary" data-toggle-password>Show</button>
           </div>
           <a href="#" class="tertiary">Forgot password?</a>
